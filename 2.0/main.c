@@ -41,6 +41,7 @@ int main(){
 	printf("Are you sure? you need exactly 2 players to play the game! unless you can play it left brain vs right brain\n");
 	any_key_to_continue();
 	printf("Okay, Let's go!\n");
+	
 	printf("Generating game...\n\n");
 	Player p1 = createplayer(1, '&', 2, 2);
 	Unit *archer1 = Archer(0, 0, &p1);
@@ -58,7 +59,6 @@ int main(){
 	Unit *horseman2 = Horseman(0,0, &p2);
 	player_recruit(&p2, horseman2);
 	
-	/* perspective from player1 */
 	printf("Mission: find and destroy all enemy units\n\n");
 	any_key_to_continue();
 	while(1){
