@@ -22,6 +22,7 @@ By Cao Peng, Oct 2016
 #define WARFOGENABLED 1
 #define ENEMYSYMBOL '<'
 #define TERRAIN_VARIETY 3	// maximum 2 in this game version
+#define ARMYSIZE 9
 
 /* program dependency */
 #include "units.h"	// units, player ... struct definition
@@ -32,8 +33,16 @@ int turn(Player * p1, Player * p2);
 
 int main(){	
 	printf("\nWelcome to Faction War 2.0 alpha version, developed by Cao Peng, Oct 2016.\n\n");
+	printf("Note: in this version\n1. Terrains has no effects except for the visual differences in map\n");
+	printf("2. No zone of control which means the all units can move in and out of any unoccupied spot\n\n");
+	any_key_to_continue();
+	printf("Do you want to start a 1v1 game?\n");
+	any_key_to_continue();
+	printf("Are you sure? you need exactly 2 players to play the game! unless you can play it left brain vs right brain\n");
+	any_key_to_continue();
+	printf("Okay, Let's go!\n");
 	printf("Generating game...\n\n");
-	Player p1 = createplayer(1, '&', 2, 2, 9);
+	Player p1 = createplayer(1, '&', 2, 2);
 	Unit *archer1 = Archer(0, 0, &p1);
 	player_recruit(&p1, archer1);
 	Unit *swordman1 = Swordman(0,0, &p1);
@@ -41,7 +50,7 @@ int main(){
 	Unit *horseman1 = Horseman(0,0, &p1);
 	player_recruit(&p1, horseman1);
 	
-	Player p2 = createplayer(2, '&', 19, 19, 9);
+	Player p2 = createplayer(2, '&', 19, 19);
 	Unit *archer2 = Archer(0, 0, &p2);
 	player_recruit(&p2, archer2);
 	Unit *swordman2 = Swordman(0,0, &p2);
@@ -83,9 +92,7 @@ int turn(Player * p1, Player * p2){
 	int size = 10, i=0;
 	Unit * unit;
 	char * action, * raw_user_input, ** commands;
-	pre_turn(p1);
-	getmap(p1, p2);
-	report(p1);
+	pre_turn(p1); getmap(p1, p2); report(p1);
 	printf("\nPlayer %d, take your turn\n", p1->player_id);
 	printf("key in \"help\" to see a list of useful command\n");
 	while(1){
@@ -110,7 +117,7 @@ int turn(Player * p1, Player * p2){
 				commands[1] = commands[0];	// action if not empty
 			}
 			if(strcmp(commands[1], "move")==0){
-				while((i = move_unit(unit, commands[2]))==2){
+				while((i = move_unit(unit, commands[2], p1, p2))==2){
 					commands[2] = 0;
 				}
 				if(i == 1) getmap(p1, p2);	// new vision from movement
