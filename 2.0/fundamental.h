@@ -3,8 +3,17 @@
 /****************************************************************************/
 /* obvious */
 void any_key_to_continue(){
-	printf("press enter to continue...\n");
+	printf("press enter to continue...");
 	getchar();
+}
+
+/****************************************************************************/
+/* this function print n times character c */
+void fillwith(int n, char c){
+	int i;
+	for(i = 0; i < n; i++){
+		printf("%c", c);
+	}
 }
 
 /****************************************************************************/
@@ -97,14 +106,14 @@ int convert2numbers(char * command, int * x, int * y){
 /****************************************************************************/
 /* this funciton prints the available commands a player can call */
 void helpmanual(){
-	printf("\t/**********************************************************/\n");
-	printf("\tselect a soldier/target by its full name appeared on the board\n");
-	printf("\t%-10sTo get this help manual for available command turn\n", "help");
-	printf("\t%-10sTo get latest status of the battle\n", "get");
-	printf("\t%-10sTo end your turn\n", "end/quit");
-	printf("\t%-10sTo dis-select the current unit\n", "back");
-	printf("\t%-10sTo view the current status of all visible units\n", "report");
-	printf("\t/**********************************************************/\n");
+	fillwith(70, '+'); printf("\n\n");
+	printf("\tselect a soldier/target by its full name appeared on the board\n\n");
+	printf("\t%-10sTo get this help manual for available command turn\n\n", "help");
+	printf("\t%-10sTo get latest status of the battle\n\n", "get");
+	printf("\t%-10sTo end your turn\n\n", "end/quit");
+	printf("\t%-10sTo dis-select the current unit\n\n", "back");
+	printf("\t%-10sTo view the current status of all visible units\n\n", "report");
+	fillwith(70, '+'); printf("\n\n");
 }
 
 /****************************************************************************/
@@ -149,10 +158,9 @@ Terrain * init_terrain(){
 #define TARRAY init_terrain() // types of terrain used in map generation
 /****************************************************************************/
 /* this function finds the unit occuping the cordinate (x,y)*/
-Unit* locate_unit(int x, int y, Player * player){
+Unit* locate_unit(int x, int y, Unit** unit_list, int no_of_units){
 	int i;
-	Unit** unit_list = player->unit_list;
-	for(i = 0; i < player->no_of_units; i++){
+	for(i = 0; i < no_of_units; i++){
 		if(unit_list[i]){
 			if(x==(unit_list[i])->x && y==(unit_list[i])->y){
 				return unit_list[i];
@@ -172,7 +180,7 @@ void recruitspot(Unit * unit, Player * player){
 			if(i==0&&j==0){continue;}
 			x = player->x + j;
 			y = player->y + i;
-			unfit = locate_unit(x, y, player) || x>=MAPSIZE || y>=MAPSIZE ||
+			unfit = locate_unit(x, y, player->unit_list, player->no_of_units) || x>=MAPSIZE || y>=MAPSIZE ||
 					x<0 || y<0 || (x==player->x && y==player->y);
 			if(!unfit){
 				validxy[valid][0] = x;
@@ -268,15 +276,15 @@ Unit * Horseman(int x, int y, Player * player){
 	arg2,3: the xlocation,ylocation for its base
 	arg4: the initial maximum size for its army
 */
-Player createplayer(int player_id, char sym_base, int x, int y, int armysize){
+Player createplayer(int player_id, char sym_base, int x, int y){
 	Player * player;
 	player = (Player *) malloc (1 * sizeof(Player));
 	player->player_id = player_id;
 	player->base = sym_base;
 	player->x = x-1; player->y = y-1;
 	player->sight = 4;
-	player->unit_list = (Unit**)malloc(armysize*sizeof(Unit *));
-	player->hostile_spotted = (Unit**)malloc(armysize*sizeof(Unit *));
+	player->unit_list = (Unit**)malloc(ARMYSIZE*sizeof(Unit *));
+	player->hostile_spotted = (Unit**)malloc(ARMYSIZE*sizeof(Unit *));
 	player->no_of_units = 0;
 	player->units_alive = 0;
 	player->no_of_hostile = 0;
@@ -298,15 +306,6 @@ char find_terrain(int x, int y, int ** map, Terrain * terray){
 }
 
 /****************************************************************************/
-/* this function print n times character c */
-void fillwith(int n, char c){
-	int i;
-	for(i = 0; i < n; i++){
-		printf("%c", c);
-	}
-}
-
-/****************************************************************************/
 /* print [|||||  ] as the current/max, total being the entire length */
 void printbar(int max, int current, int total){
 	printf(" [");
@@ -316,30 +315,33 @@ void printbar(int max, int current, int total){
 }
 
 /****************************************************************************/
+/* this funcition print the info of a unit (assistant function to report())*/
+void printunit(Unit * unit){
+	printf("\t"); fillwith(76, '-'); printf("\n");
+	printf("\t%5d%12s%6d%c%d%10d%10d%10d%10d%5d,%2d\n", 
+		unit->player_id, unit->unit_type, unit->player_id, 
+		unit->unit_symbol, unit->unit_id, unit->hitpoint, 
+		unit->attack, unit->defense, unit->movement, 
+		unit->x+1, unit->y+1);
+}
+
+/****************************************************************************/
 /* this funciton prints all visible units' stats for the player */
 void report(Player * p1){
-	int i;
-	printf("\n%5s%15s%8s%10s%10s%10s%10s%8s\n", "Side", "UnitType", 
+	int i; Unit * unit;
+	printf("\n\t%5s%12s%8s%10s%10s%10s%10s%8s\n", "Side", "UnitType", 
 			"Unitid", "Hitpoint", "Attack", "Defense", "Movement", "x,y");
-	Unit * unit;
 	for(i=0; i < p1->no_of_units; i++){	// p1's units
-		if(p1->unit_list[i]){ 
-			unit = p1->unit_list[i];
-			printf("%5d%12s(%c)%8d%10d%10d%10d%10d%5d,%2d\n", unit->player_id, 
-				unit->unit_type, unit->unit_symbol, unit->unit_id,
-				unit->hitpoint, unit->attack, unit->defense, 
-				unit->movement, unit->x+1, unit->y+1);
+		if(p1->unit_list[i]){
+			unit = p1->unit_list[i]; printunit(unit);
 		}
 	}
 	for(i=0; i < p1->no_of_hostile; i++){	// units hostile to p1
 		if(p1->hostile_spotted[i]){
-			unit = p1->hostile_spotted[i];
-			printf("%5d%12s(%c)%8d%10d%10d%10d%10d%5d,%2d\n", unit->player_id, 
-				unit->unit_type, unit->unit_symbol, unit->unit_id,
-				unit->hitpoint, unit->attack, unit->defense, 
-				unit->movement, unit->x+1, unit->y+1);
+			unit = p1->hostile_spotted[i]; printunit(unit);
 		}
 	}
+	printf("\t"); fillwith(76, '-'); printf("\n");
 }
 
 /****************************************************************************/
@@ -367,22 +369,24 @@ int checksight(int *xmins, int *ymins, int *xmaxs, int *ymaxs,
 /* this function construct sight-range of player with all its units' sight */
 void buildsight(int **xmins, int **ymins, int **xmaxs, int **ymaxs, Player * player){
 	// build the sight range for a player with all the owned units
-	int i, no_of_units = player->no_of_units;
+	int i, j = 0, units_alive = player->units_alive;
 	Unit ** unit_list = player->unit_list;
-	*xmins = (int*) malloc ((no_of_units+1) * sizeof(int));
-	*ymins = (int*) malloc ((no_of_units+1) * sizeof(int));
-	*xmaxs = (int*) malloc ((no_of_units+1) * sizeof(int));
-	*ymaxs = (int*) malloc ((no_of_units+1) * sizeof(int));
-	for(i = 0; i < no_of_units; i++){
-		*(*xmins+i)=(*(unit_list+i))->x - (*(unit_list+i))->sight;
-		*(*xmaxs+i)=(*(unit_list+i))->x + (*(unit_list+i))->sight;
-		*(*ymins+i)=(*(unit_list+i))->y - (*(unit_list+i))->sight;
-		*(*ymaxs+i)=(*(unit_list+i))->y + (*(unit_list+i))->sight;
+	*xmins = (int*) malloc ((units_alive+1) * sizeof(int));
+	*ymins = (int*) malloc ((units_alive+1) * sizeof(int));
+	*xmaxs = (int*) malloc ((units_alive+1) * sizeof(int));
+	*ymaxs = (int*) malloc ((units_alive+1) * sizeof(int));
+	for(i = 0; i < player->no_of_units; i++){
+		if(*(unit_list+i)){
+			*(*xmins+j)=(*(unit_list+i))->x - (*(unit_list+i))->sight;
+			*(*xmaxs+j)=(*(unit_list+i))->x + (*(unit_list+i))->sight;
+			*(*ymins+j)=(*(unit_list+i))->y - (*(unit_list+i))->sight;
+			*(*ymaxs+j)=(*(unit_list+i))->y + (*(unit_list+i))->sight; j++;
+		}
 	}
-	*(*xmins+i)=player->x - player->sight;	// vision from player's base
-	*(*xmaxs+i)=player->x + player->sight;
-	*(*ymins+i)=player->y - player->sight;
-	*(*ymaxs+i)=player->y + player->sight;
+	*(*xmins+j)=player->x - player->sight;	// vision from player's base
+	*(*xmaxs+j)=player->x + player->sight;
+	*(*ymins+j)=player->y - player->sight;
+	*(*ymaxs+j)=player->y + player->sight;
 }
 
 /****************************************************************************/
@@ -446,9 +450,9 @@ void getmap(Player * p1, Player * p2){
 									x, y, no_of_units);
 			if(!WARFOGENABLED) in_sight = 1;
 			if(in_sight){
-				if((found_unit = locate_unit(x, y, p1))){	// friendly units
+				if((found_unit = locate_unit(x, y, p1->unit_list, p1->no_of_units))){	// friendly units
 					printobj(p1, found_unit);
-				}else if((found_unit = locate_unit(x, y, p2))){	// enemy units
+				}else if((found_unit = locate_unit(x, y, p2->unit_list, p2->no_of_units))){	// enemy units
 					addhostile(found_unit, p1);
 					printobj(p2, found_unit);
 				}else if((found_player = locate_player(x, y, p1))){
@@ -471,7 +475,7 @@ void getmap(Player * p1, Player * p2){
 		printf("\n");
 	}
 	// map bottom axis label
-	printaxis(); printf("\n");
+	 print_border(); printf("\n"); printaxis(); printf("\n");
 }
 
 /****************************************************************************/
@@ -484,7 +488,7 @@ int checkcommand(char ** command, Player * p1, Player * p2){
 	}else if(strcmp(command[0], "report")==0){
 		report(p1); return 3;
 	}else if(strcmp(command[0], "help")==0){
-		helpmanual(); return 0;
+		helpmanual(); return 3;
 	}else if(strcmp(command[0], "get")==0){
 		getmap(p1, p2); return 3;
 	}
@@ -492,12 +496,16 @@ int checkcommand(char ** command, Player * p1, Player * p2){
 }
 
 /****************************************************************************/
-/* this function will remove the hostile unit if it is killed */
-void killhostile(Player * p1, Unit * unit){
-	int i;
+/* this function will settle the death of a unit */
+void killhostile(Player * p1, Unit * unit, Player * p2){
+	int i; 
+	printf("target %d%c%d killed\n", unit->player_id, unit->unit_symbol, 
+									unit->unit_id);
 	for(i = 0; i < p1->no_of_hostile; i++){
 		if(unit==p1->hostile_spotted[i]) p1->hostile_spotted[i] = 0;
 	}
+	free(unit);
+	p2->units_alive -= 1;
 }
 
 /****************************************************************************/
@@ -515,30 +523,54 @@ void pre_turn(Player *p1){
 }
 
 /****************************************************************************/
+/* this function decides if the attack option is possible for the unit */
+int find_attackable(Unit * unit, Player * p1, Unit ** atk_list){
+	int x, y, i = 0; 
+	Unit * temp;
+	for(y= unit->y - unit->attackrange; y <= unit->y + unit->attackrange; y++){
+		for(x= unit->x - unit->attackrange; x <= unit->x + unit->attackrange; x++){
+			if((temp = locate_unit(x, y, p1->hostile_spotted,
+													p1->no_of_hostile))){
+				atk_list[i++] = temp;
+			}
+		}
+	}
+	atk_list[i] = 0;
+	return !atk_list[0];
+}
+
+/****************************************************************************/
 /* this function finds and print all available action of the unit */
 int available_action(Unit * unit, Player * p1){
-	printf("\n%s%d selected at (%d,%d)\n", unit->unit_type, unit->unit_id, 
+	printf("%s%d selected at (%d,%d)", unit->unit_type, unit->unit_id, 
 		unit->x+1,unit->y+1);
 	if(unit->action[0]&&unit->action[1]&&unit->action[2]){
-		printf("Out of actions!!!\n");
+		printf("\nOut of actions!!!");
 		return 0;
 	}
-	printf("What needs to be done? (key in the action):\n");
+	printf("\nWhat needs to be done? (key in the action):");
 	if(!unit->action[0]){
-		printf("\tmove\t(%d movement points left)\n", unit->movement);
+		printf("\n\tmove\t(%d movement points left)", unit->movement);
 	}
-	if(!unit->action[1] && p1->no_of_hostile){
-		printf("\tattack\n");
+	if(!unit->action[1]){
+		Unit ** atk_list = (Unit**) malloc (ARMYSIZE*sizeof(Unit*)); int i;
+		if(!find_attackable(unit, p1, atk_list)){
+			printf("\n\tattack\t{");
+			for(i = 0; atk_list[i]; i++){
+				printf(" %d%c%d ", atk_list[i]->player_id, atk_list[i]->unit_symbol, atk_list[i]->unit_id);
+			}
+			printf("}");
+		}
 	}
 	if(!unit->action[2]){
-		printf("\trest\t(regenerate 1 hp)\n");
+		printf("\n\trest\t(regenerate 1 hp)");
 	}
-	printf("\t%-10sTo dis-select current unit\n", "back");
+	printf("\n\t%-10sTo dis-select current unit\n", "back");
 	return 1;
 }
 /****************************************************************************/
 /* this function is called for a unit to perform move action */
-int move_unit(Unit * unit, char *command){
+int move_unit(Unit * unit, char *command, Player * p1, Player * p2){
 	if(unit->action[0]) {
 		printf("no movement point available\n");
 		any_key_to_continue(); return 0; // can't move
@@ -552,9 +584,9 @@ int move_unit(Unit * unit, char *command){
 	}
 	
 	if(guard){
-		temp = x>0 && x <=MAPSIZE && y>0 && y<=MAPSIZE && 
-			abs(x-1-unit->x) <= unit->movement &&
-			abs(y-1-unit->y) <= unit->movement;
+		temp = x>0 && x <= MAPSIZE && y>0 && y<= MAPSIZE && 
+			abs(x-1-unit->x) <= unit->movement && !locate_unit(x-1, y-1, p1->unit_list, p1->no_of_units) &&
+			abs(y-1-unit->y) <= unit->movement && !locate_unit(x-1, y-1, p2->unit_list, p2->no_of_units);
 		if(temp){
 			(unit->action)[2] = 1;
 			unit->movement -= abs(x-1-unit->x) > abs(y-1-unit->y)? abs(x-1-unit->x): abs(y-1-unit->y);
@@ -600,22 +632,19 @@ int attack_unit(Unit * unit, Player * p1, Player * p2, char * hostile){
 	Unit * target = (p2->unit_list)[unit_id-1];
 	int range = unit->attackrange;
 	if(abs(unit->x - target->x) <= range && abs(unit->y - target->y) <= range){
-		printf("attack successful!\n");
-		int damage = unit->attack - target->defense;
+		int damage = unit->attack - target->defense;	// damage formula
 		target->hitpoint -= damage;
-		printf("%d damage dealt\n", damage); any_key_to_continue();
+		unit->action[0] = 1; unit->action[1] = 1; unit->action[2] = 1;
+		unit->movement = 0;	// action change
+		printf("attack successful!\n%d damage dealt to %d%c%d\n", 
+			damage, target->player_id, target->unit_symbol, target->unit_id);
+		any_key_to_continue();
 		if(target->hitpoint <= 0){
-			killhostile(p1, target);	// remove from hostile spotted list
-			free(target);
+			killhostile(p1, target, p2); // death of the unit
 			p2->unit_list[unit_id-1] = 0;
-			printf("target killed!\n");
-			p2->units_alive -= 1;
-			if(p2->units_alive == 0){
-				return 1;
-			}
+			if(p2->units_alive == 0) return 1;	// victory condition
 			any_key_to_continue(); report(p1); return 0;
 		}
-		unit->action[0] = 1; unit->action[1] = 1; unit->action[2] = 1;
 		report(p1); return 0;
 	}
 	printf("attack failed! target not in range\n");
