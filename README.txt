@@ -13,4 +13,4 @@ run the .exe to play the game
   2. added orderable troop system
 
 3.0 Features: 
-  1. recruit and income sytem
+  1. recruit and income system
