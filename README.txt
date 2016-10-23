@@ -14,3 +14,8 @@ run the .exe to play the game
 
 3.0 Features: 
   1. recruit and income system
+
+Future versions:
+4.0 (adding occupiable Expansions which contributes to player's income)
+5.0 (adding terrain effects on stats namely accuracy and movements)
+6.0 (adding socket which allows the game to be played PvP on different machines)
