@@ -642,7 +642,7 @@ int attack_unit(Unit * unit, Player * p1, Player * p2, char * hostile){
 		if(target->hitpoint <= 0){
 			killhostile(p1, target, p2); // death of the unit
 			p2->unit_list[unit_id-1] = 0;
-			if(p2->units_alive == 0) return 1;	// victory condition
+			if(p2->units_alive == 0) return 10;	// victory condition
 			any_key_to_continue(); report(p1); return 0;
 		}
 		report(p1); return 0;
