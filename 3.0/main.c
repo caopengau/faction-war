@@ -33,9 +33,9 @@ By Cao Peng, Oct 2016
 
 int main(){	
 	/* brief the players */
-	printf("\nWelcome to Faction War 2.0 alpha version, developed by Cao Peng, Oct 2016.\n\n");
-	printf("Note: in this version\n1. Terrains has no effects except for the visual differences in map\n");
-	printf("2. No zone of control which means the all units can move in and out of any unoccupied spot\n\n");
+	printf("\nWelcome to Faction War 3.0 version, developed by Cao Peng, Oct 2016.\n\n");
+	printf("Notable change in this version:\n1. troops are recuitable so choose wisely\n");
+
 	enter_to_continue();
 	printf("Do you want to start a 1v1 game?\n");
 	enter_to_continue();
