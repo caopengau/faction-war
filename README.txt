@@ -12,7 +12,7 @@ run the .exe to play the game
   1. added commandline interaction
   2. added orderable troop system
 
-3.0 Features: 
+3.0 Features(Latest): 
   1. recruit and income system
 
 Future versions:
