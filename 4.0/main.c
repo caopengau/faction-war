@@ -36,7 +36,7 @@ int turn(Player * p1, Player * p2);
 int main(){	
 	init_expansion();
 	// /* brief the players */
-	printf("\nWelcome to Faction War 3.0 version, developed by Cao Peng, Oct 2016.\n\n");
+	printf("\nWelcome to the faction war 4.0 version, developed by Cao Peng, Oct 2016.\n\n");
 	printf("Notable change in this version:\n1. troops are recuitable so choose wisely\n");
 	printf("\n2. Expansions generates incomes, so secure and protect those hex to gain supply advantage\n\n");
 
