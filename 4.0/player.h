@@ -141,8 +141,6 @@ void pre_turn(Player *p1){
 			}
 		}
 	}
-	
-	p1->no_of_hostile = 0;	// no hostile units seen
 	for(i = 0; i < p1->no_of_units; i++){	// restore all action points for units
 		if(unit_list[i]){
 			memset(unit_list[i]->action, 0, 3);
@@ -160,7 +158,6 @@ void getmap(Player * p1, Player * p2){
 	no_of_units = p1->no_of_units;
 	Unit* found_unit;
 	Player* found_player;
-	
 	p1->no_of_hostile = 0;
 	buildsight(&xmins, &ymins, &xmaxs, &ymaxs, p1);
 	
