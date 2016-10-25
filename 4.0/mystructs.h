@@ -49,6 +49,7 @@ struct player{
 	Unit **unit_list;
 	Unit **hostile_spotted;
 	int resource;
+	int base_income;
 	int no_of_expansion;
 	int * expansion_list;
 };
