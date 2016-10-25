@@ -168,6 +168,7 @@ int turn(Player * p1, Player * p2){
 			}
 		}
 	}
-	fillwith(80, '='); printf("\nturn over!\n"); fillwith(80, '=');
+	fillwith(100, '='); printf("\nTurn over!\n"); fillwith(100, '=');
+	enter_to_continue();
 	return 0;
 }
