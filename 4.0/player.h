@@ -18,7 +18,7 @@ Player createplayer(int player_id, char sym_base, int x, int y){
 	player->no_of_units = 0;
 	player->units_alive = 0;
 	player->no_of_hostile = 0;
-	player->resource = 30;
+	player->resource = 30; player->base_income = 2;
 	player->no_of_expansion = 0;
 	player->expansion_list = (int *) malloc((MAPSIZE*MAPSIZE/200+1)*sizeof(int));
 	return *player;
@@ -110,6 +110,49 @@ void legend(){
 }
 
 /****************************************************************************/
+/* this function modifies incomes of a player at the begining of the turn */
+void income(Player *p1){
+	Expansion * expansion; int i;
+	printf("+%d income from base\n", p1->base_income); p1->resource += 2;	// income from base
+	for(i=0; i < MAPSIZE*MAPSIZE/200+1; i++){
+		expansion = EMAP[i];
+		if(expansion->player_id == p1->player_id){
+			printf("+%d income from %d%c%d\n", expansion->income, expansion->player_id, expansion->expansion_symbol, expansion->expansion_id);
+			p1->resource += EMAP[i]->income;
+		}
+	}
+}
+
+/****************************************************************************/
+/* this funciton restores unit's action and movement points for the player */
+void pre_turn(Player *p1){
+	int i; Unit ** unit_list = p1->unit_list; Expansion * expansion;
+	for(i = 0; i < p1->no_of_units; i++){
+		if(unit_list[i]){
+			if((expansion = locate_expansion(unit_list[i]->x, unit_list[i]->y))){
+				// p1->expansion_list[p1->no_of_expansion] = expansion;
+				if(expansion->player_id != p1->player_id){
+					printf("Expansion %d%c%d secured by %d%c%d!\n", 
+						expansion->player_id, expansion->expansion_symbol, expansion->expansion_id,
+						unit_list[i]->player_id, unit_list[i]->unit_symbol, unit_list[i]->unit_id);
+					enter_to_continue();
+				}
+				expansion->player_id = p1->player_id;
+			}
+		}
+	}
+	
+	p1->no_of_hostile = 0;	// no hostile units seen
+	for(i = 0; i < p1->no_of_units; i++){	// restore all action points for units
+		if(unit_list[i]){
+			memset(unit_list[i]->action, 0, 3);
+			unit_list[i]->movement = unit_list[i]->movementbar;
+		}
+	}
+	income(p1);
+}
+
+/****************************************************************************/
 /* this function print the map pixel, units and playerbase if any */
 void getmap(Player * p1, Player * p2){
 	int x, y, *xmins, *ymins, *xmaxs, *ymaxs, in_sight, no_of_units;
@@ -144,8 +187,8 @@ void getmap(Player * p1, Player * p2){
 				}else{	// print the terrain
 					fillwith(PIXEL_SIZE/2-1, ' ');
 					if((expansion = locate_expansion(x, y))){
-						printf("%d%c", expansion->player_id, expansion->expansion_symbol);
-						fillwith(PIXEL_SIZE-PIXEL_SIZE/2-1, ' ');
+						printf("%d%c%d", expansion->player_id, expansion->expansion_symbol, expansion->expansion_id);
+						fillwith(PIXEL_SIZE-PIXEL_SIZE/2-2, ' ');
 					}else{
 						printf("%c", find_terrain(x, y));
 						fillwith(PIXEL_SIZE-PIXEL_SIZE/2, ' ');
@@ -154,8 +197,8 @@ void getmap(Player * p1, Player * p2){
 			}else{	// not in sight range, print fog
 				if((expansion = locate_expansion(x, y))){
 					fillwith(PIXEL_SIZE/2-1, ' ');
-					printf("%d%c", expansion->player_id, expansion->expansion_symbol);
-					fillwith(PIXEL_SIZE-PIXEL_SIZE/2-1, ' ');
+					printf("%d%c%d", expansion->player_id, expansion->expansion_symbol, expansion->expansion_id);
+					fillwith(PIXEL_SIZE-PIXEL_SIZE/2-2, ' ');
 				}else{
 					fillwith(PIXEL_SIZE, MAPFOGMATERIAL);					
 				}
