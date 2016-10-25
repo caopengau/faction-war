@@ -18,11 +18,12 @@ int ** create_tmap(){
 /****************************************************************************/
 Expansion ** init_expansion(){
 	int i;
-	Expansion ** emap = (Expansion **)malloc((MAPSIZE*MAPSIZE/200+1) * sizeof(int *));
-	for(i = 0; i < MAPSIZE*MAPSIZE/200+1; i++){
+	int expansions = MAPSIZE*MAPSIZE/200+1;
+	Expansion ** emap = (Expansion **)malloc(expansions * sizeof(int *));
+	for(i = 0; i < expansions; i++){
 		emap[i] = (Expansion *) malloc (sizeof(Expansion));
-		emap[i]->x = (i*MAPSIZE/2);
-		emap[i]->y = MAPSIZE-(i*MAPSIZE/2);
+		emap[i]->x = (i*MAPSIZE/(expansions-1));
+		emap[i]->y = MAPSIZE-(i*MAPSIZE/(expansions-1));
 		emap[i]->income = 2;
 		emap[i]->expansion_symbol = '$';
 		emap[i]->expansion_id = i;
