@@ -13,7 +13,7 @@ By Cao Peng, Oct 2016
 #include <unistd.h>	// for sleep()
 
 /* customized setting */
-#define MAPSIZE 20
+#define MAPSIZE 20	// multiples of 4
 #define PIXEL_SIZE 4
 #define MAPFOGMATERIAL '#'
 #define WARFOGENABLED 1
@@ -36,8 +36,8 @@ int turn(Player * p1, Player * p2);
 int main(){	
 	init_expansion();
 	// /* brief the players */
-	printf("\nWelcome to the faction war 4.0 version, developed by Cao Peng, Oct 2016.\n\n");
-	printf("Notable change in this version:\n1. troops are recuitable so choose wisely\n");
+	printf("\nWelcome to the Faction War 4.0 version, developed by Cao Peng, Oct 2016.\n\n");
+	printf("Notable change in this version:\n1. Troops are recuitable so choose wisely\n");
 	printf("\n2. Expansions generates incomes, so secure and protect those hex to gain supply advantage\n\n");
 
 	enter_to_continue();
@@ -56,7 +56,7 @@ int main(){
 	// Unit *horseman1 = Horseman(0,0, &p1);
 	// player_recruit(&p1, horseman1);
 	
-	Player p2 = createplayer(2, '&', 19, 19);
+	Player p2 = createplayer(2, '&', MAPSIZE-1, MAPSIZE-1);
 	// Unit *archer2 = Archer(0, 0, &p2);	/* testing units */
 	// player_recruit(&p2, archer2);
 	// Unit *swordman2 = Swordman(0,0, &p2);
@@ -80,46 +80,12 @@ int main(){
 	return 0;
 }
 
-
-/****************************************************************************/
-/* this funciton restores unit's action and movement points for the player */
-void pre_turn(Player *p1){
-	int i; Unit ** unit_list = p1->unit_list; Expansion * expansion;
-	p1->resource += 2;	// income from base
-	for(i = 0; i < p1->no_of_units; i++){
-		if(unit_list[i]){
-			if((expansion = locate_expansion(unit_list[i]->x, unit_list[i]->y))){
-				// p1->expansion_list[p1->no_of_expansion] = expansion;
-				printf("expansion gained by %d%c%d!\n", unit_list[i]->player_id, unit_list[i]->unit_symbol, unit_list[i]->unit_id);
-				enter_to_continue();
-				expansion->player_id = p1->player_id;
-			}
-		}
-	}
-	
-	for(i=0; i < MAPSIZE*MAPSIZE/200+1; i++){
-		if(EMAP[i]->player_id == p1->player_id){
-			printf("gained additional income\n");
-			p1->resource += EMAP[i]->income;
-		}
-	}
-	
-	p1->no_of_hostile = 0;	// no hostile units seen
-	for(i = 0; i < p1->no_of_units; i++){	// restore all action points for units
-		if(unit_list[i]){
-			memset(unit_list[i]->action, 0, 3);
-			unit_list[i]->movement = unit_list[i]->movementbar;
-		}
-	}
-}
-
-
 /****************************************************************************/
 /* a turn for one player */
 int turn(Player * p1, Player * p2){
 	int size = 10, i=0; Unit * unit;
 	char * action, * raw_user_input, ** commands;
-	pre_turn(p1); getmap(p1, p2); report(p1);
+	getmap(p1, p2); pre_turn(p1); report(p1);
 	
 	printf("\nPlayer %d, take your turn\tgold: %d\n", p1->player_id, p1->resource);
 	printf("key in \"help\" to see a list of useful command\n");
@@ -168,7 +134,7 @@ int turn(Player * p1, Player * p2){
 			}
 		}
 	}
-	fillwith(100, '='); printf("\nTurn over!\n"); fillwith(100, '=');
-	enter_to_continue();
+	fillwith(MAPSIZE*PIXEL_SIZE, '='); printf("\nTurn over!\n"); fillwith(MAPSIZE*PIXEL_SIZE, '=');
+	printf("\n"); enter_to_continue();
 	return 0;
 }
